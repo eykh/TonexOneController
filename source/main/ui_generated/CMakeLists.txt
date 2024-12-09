@@ -16,7 +16,6 @@ SET(SOURCES screens/ui_Screen1.c
     images/ui_img_arrow_left_png.c
     images/ui_img_arrow_right_png.c
     images/ui_img_tick_png.c
-    images/ui_img_logo_png.c
     images/ui_img_pskin_arion_png.c
     images/ui_img_pskin_bigmuff_png.c
     images/ui_img_pskin_darkglass_png.c
@@ -43,11 +42,8 @@ SET(SOURCES screens/ui_Screen1.c
     images/ui_img_skin_2020_png.c
     images/ui_img_skin_5150_png.c
     images/ui_img_skin_ac30_png.c
-    images/ui_img_skin_acoustic360_png.c
     images/ui_img_skin_b18n_png.c
-    images/ui_img_skin_b51n_png.c
     images/ui_img_skin_bluesdeluxe_png.c
-    images/ui_img_skin_customdeluxe_png.c
     images/ui_img_skin_deville_png.c
     images/ui_img_skin_diezel_png.c
     images/ui_img_skin_dualrectifier_png.c
@@ -63,12 +59,9 @@ SET(SOURCES screens/ui_Screen1.c
     images/ui_img_skin_pinktaco_png.c
     images/ui_img_skin_powerball_png.c
     images/ui_img_skin_princeton_png.c
-    images/ui_img_skin_rockerverb_png.c
     images/ui_img_skin_superbass_png.c
     images/ui_img_skin_supro50_png.c
     images/ui_img_skin_svtcl_png.c
-    images/ui_img_skin_tinyterror_png.c
-    images/ui_img_skin_trinity_png.c
     images/ui_img_skin_twinreverb_png.c
     ui_temporary_image.c)
 

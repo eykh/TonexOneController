@@ -731,20 +731,17 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
     case ESP_GATTS_CONNECT_EVT: 
     {
-#if 0        
         esp_ble_conn_update_params_t conn_params = {0};
         memcpy(conn_params.bda, param->connect.remote_bda, sizeof(esp_bd_addr_t));
-        /* For the IOS system, please reference the apple official documents about the ble connection parameters restrictions. */
+
+        // For the IOS system, please reference the apple official documents about the ble connection parameters restrictions
         conn_params.latency = 0;
-        conn_params.max_int = 0x20;    // max_int = 0x20*1.25ms = 40ms
-        conn_params.min_int = 0x10;    // min_int = 0x10*1.25ms = 20ms
+        conn_params.max_int = 8;       // max_int (x 1.25ms)
+        conn_params.min_int = 6;       // min_int (x 1.25ms)
         conn_params.timeout = 400;    // timeout = 400*10ms = 4000ms
-        ESP_LOGI(GATTS_TAG, "Connected, conn_id %u, remote "ESP_BD_ADDR_STR"",
-                 param->connect.conn_id, ESP_BD_ADDR_HEX(param->connect.remote_bda));
-        gls_profile_tab[PROFILE_A_APP_ID].conn_id = param->connect.conn_id;
-        //start sent the update connection parameters to the peer device.
+
+        // start sent the update connection parameters to the peer device.
         esp_ble_gap_update_conn_params(&conn_params);
-#endif
 
         ESP_LOGI(GATTS_TAG, "Connected, conn_id %u, remote "ESP_BD_ADDR_STR"", param->connect.conn_id, ESP_BD_ADDR_HEX(param->connect.remote_bda));
         
@@ -1460,21 +1457,23 @@ static void InitDeviceList(void)
     remote_device_names_length = 0;
 
     // build list of devices to scan for and connect to if found
-#if CONFIG_TONEX_CONTROLLER_DEVICE_SUPPORT_MVAVE_CHOCOLATE
-    // M-vave Chocolate device name is 'FootCtrl'
-    strncpy(remote_device_names[remote_device_names_length], "FootCtrl", MAX_DEVICE_NAME_LENGTH);
-    remote_device_names_length++;
+    if (control_get_config_bt_mvave_choc_enable())
+    {
+        // M-vave Chocolate device name is 'FootCtrl'
+        strncpy(remote_device_names[remote_device_names_length], "FootCtrl", MAX_DEVICE_NAME_LENGTH);
+        remote_device_names_length++;
 
-    // M-vave Chocolate Plus device name is 'FootCtrlPlus'
-    strncpy(remote_device_names[remote_device_names_length], "FootCtrlPlus", MAX_DEVICE_NAME_LENGTH);
-    remote_device_names_length++;
-#endif    
+        // M-vave Chocolate Plus device name is 'FootCtrlPlus'
+        strncpy(remote_device_names[remote_device_names_length], "FootCtrlPlus", MAX_DEVICE_NAME_LENGTH);
+        remote_device_names_length++;
+    }
 
-#if CONFIG_TONEX_CONTROLLER_DEVICE_SUPPORT_XVIVE_MD1
-    // Xvive Bluetooth Midi adaptor is 'Xvive MD1'
-    strncpy(remote_device_names[remote_device_names_length], "Xvive MD1", MAX_DEVICE_NAME_LENGTH);
-    remote_device_names_length++;
-#endif    
+    if (control_get_config_bt_xvive_md1_enable())
+    {
+        // Xvive Bluetooth Midi adaptor is 'Xvive MD1'
+        strncpy(remote_device_names[remote_device_names_length], "Xvive MD1", MAX_DEVICE_NAME_LENGTH);
+        remote_device_names_length++;
+    }
 
     ESP_LOGI(GATTC_TAG, "Device List length: %d", remote_device_names_length);
 }
@@ -1531,73 +1530,72 @@ static void init_BLE(void)
         return;
     }
 
-#if CONFIG_TONEX_CONTROLLER_BLUETOOTH_CLIENT
-    // Client stuff
-    ESP_LOGI(GATTC_TAG, "Enabling BT Client mode");
-
-    InitDeviceList();
-
-    // register the callback function to the gattc module
-    ret = esp_ble_gattc_register_callback(esp_gattc_cb);
-    if(ret)
+    if (control_get_config_bt_mode() == BT_MODE_CENTRAL)
     {
-        ESP_LOGE(GATTC_TAG, "gattc register error, error code = %x", ret);
-        return;
-    }
+        // Client stuff
+        ESP_LOGI(GATTC_TAG, "Enabling BT Client mode");
 
-    ret = esp_ble_gattc_app_register(PROFILE_A_APP_ID);
-    if (ret)
+        InitDeviceList();
+
+        // register the callback function to the gattc module
+        ret = esp_ble_gattc_register_callback(esp_gattc_cb);
+        if(ret)
+        {
+            ESP_LOGE(GATTC_TAG, "gattc register error, error code = %x", ret);
+            return;
+        }
+
+        ret = esp_ble_gattc_app_register(PROFILE_A_APP_ID);
+        if (ret)
+        {
+            ESP_LOGE(GATTC_TAG, "gattc app register error, error code = %x", ret);
+            return;
+        }
+    }
+    else if (control_get_config_bt_mode() == BT_MODE_PERIPHERAL)
     {
-        ESP_LOGE(GATTC_TAG, "gattc app register error, error code = %x", ret);
-        return;
+        // Server stuff
+        ESP_LOGI(GATTS_TAG, "Enabling BT Server mode");
+
+        ret = esp_ble_gatts_register_callback(gatts_event_handler);
+        if (ret){
+            ESP_LOGE(GATTS_TAG, "gatts register error, error code = %x", ret);
+            return;
+        }
+
+        ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);
+        if (ret){
+            ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
+            return;
+        }
+
+        // set the security iocap & auth_req & key size & init key response key parameters to the stack
+        esp_ble_auth_req_t auth_req = ESP_LE_AUTH_REQ_SC_MITM_BOND;     //bonding with peer device after authentication
+        esp_ble_io_cap_t iocap = ESP_IO_CAP_NONE;           //set the IO capability to No output No input
+
+        uint8_t key_size = 16;      //the key size should be 7~16 bytes
+        uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
+        uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
+        
+        //set static passkey
+        uint32_t passkey = 123456;
+        uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_DISABLE;
+        uint8_t oob_support = ESP_BLE_OOB_DISABLE;
+
+        esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
+        esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(uint8_t));
+        esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &iocap, sizeof(uint8_t));
+        esp_ble_gap_set_security_param(ESP_BLE_SM_MAX_KEY_SIZE, &key_size, sizeof(uint8_t));
+        esp_ble_gap_set_security_param(ESP_BLE_SM_ONLY_ACCEPT_SPECIFIED_SEC_AUTH, &auth_option, sizeof(uint8_t));
+        esp_ble_gap_set_security_param(ESP_BLE_SM_OOB_SUPPORT, &oob_support, sizeof(uint8_t));
+        
+        /* If your BLE device acts as a Slave, the init_key means you hope which types of key of the master should distribute to you,
+        and the response key means which key you can distribute to the master;
+        If your BLE device acts as a master, the response key means you hope which types of key of the slave should distribute to you,
+        and the init key means which key you can distribute to the slave. */
+        esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &init_key, sizeof(uint8_t));
+        esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
     }
-#endif  //CONFIG_TONEX_CONTROLLER_BLUETOOTH_CLIENT
-
-#if CONFIG_TONEX_CONTROLLER_BLUETOOTH_SERVER
-    // Server stuff
-    ESP_LOGI(GATTS_TAG, "Enabling BT Server mode");
-
-    ret = esp_ble_gatts_register_callback(gatts_event_handler);
-    if (ret){
-        ESP_LOGE(GATTS_TAG, "gatts register error, error code = %x", ret);
-        return;
-    }
-
-    ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);
-    if (ret){
-        ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
-        return;
-    }
-
-    // set the security iocap & auth_req & key size & init key response key parameters to the stack
-    esp_ble_auth_req_t auth_req = ESP_LE_AUTH_REQ_SC_MITM_BOND;     //bonding with peer device after authentication
-    esp_ble_io_cap_t iocap = ESP_IO_CAP_NONE;           //set the IO capability to No output No input
-
-    uint8_t key_size = 16;      //the key size should be 7~16 bytes
-    uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
-    uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
-    
-    //set static passkey
-    uint32_t passkey = 123456;
-    uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_DISABLE;
-    uint8_t oob_support = ESP_BLE_OOB_DISABLE;
-
-    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(uint8_t));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &iocap, sizeof(uint8_t));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_MAX_KEY_SIZE, &key_size, sizeof(uint8_t));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_ONLY_ACCEPT_SPECIFIED_SEC_AUTH, &auth_option, sizeof(uint8_t));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_OOB_SUPPORT, &oob_support, sizeof(uint8_t));
-    
-    /* If your BLE device acts as a Slave, the init_key means you hope which types of key of the master should distribute to you,
-    and the response key means which key you can distribute to the master;
-    If your BLE device acts as a master, the response key means you hope which types of key of the slave should distribute to you,
-    and the init key means which key you can distribute to the slave. */
-    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &init_key, sizeof(uint8_t));
-    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
-
-#endif  // CONFIG_TONEX_CONTROLLER_BLUETOOTH_SERVER
-
 
     // set MTU
     ret = esp_ble_gatt_set_local_mtu(200);

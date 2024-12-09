@@ -325,7 +325,7 @@ void AmpSkinNext(lv_event_t * e)
 *****************************************************************************/
 void SaveUserDataRequest(lv_event_t * e)
 {
-    control_save_user_data();
+    control_save_user_data(0);
 }
 
 /****************************************************************************
@@ -505,29 +505,14 @@ static lv_obj_t* ui_get_skin_image(uint16_t index)
             result = (lv_obj_t*)&ui_img_skin_5150_png;
         } break;
 
-        case AMP_SKIN_ACOUSTIC360:
-        {
-            result = (lv_obj_t*)&ui_img_skin_acoustic360_png;
-        } break;
-
         case AMP_SKIN_B18N:
         {
             result = (lv_obj_t*)&ui_img_skin_b18n_png;
         } break;
 
-        case AMP_SKIN_B15N:
-        {
-            result = (lv_obj_t*)&ui_img_skin_b51n_png;
-        } break;
-
         case AMP_SKIN_BLUES_DELUXE:
         {
             result = (lv_obj_t*)&ui_img_skin_bluesdeluxe_png;
-        } break;
-
-        case AMP_SKIN_CUSTOM_DELUXE:
-        {
-            result = (lv_obj_t*)&ui_img_skin_customdeluxe_png;
         } break;
 
         case AMP_SKIN_DEVILLE:
@@ -570,11 +555,6 @@ static lv_obj_t* ui_get_skin_image(uint16_t index)
             result = (lv_obj_t*)&ui_img_skin_princeton_png;
         } break;
 
-        case AMP_SKIN_ROCKERVERB:
-        {
-            result = (lv_obj_t*)&ui_img_skin_rockerverb_png;
-        } break;
-
         case AMP_SKIN_SVTCL:
         {
             result = (lv_obj_t*)&ui_img_skin_svtcl_png;
@@ -595,11 +575,6 @@ static lv_obj_t* ui_get_skin_image(uint16_t index)
             result = (lv_obj_t*)&ui_img_skin_superbass_png;
         } break;
 
-        case AMP_SKIN_TRINITY:
-        {
-            result = (lv_obj_t*)&ui_img_skin_trinity_png;
-        } break;
-
         case AMP_SKIN_DUMBLE:
         {
             result = (lv_obj_t*)&ui_img_skin_dumble_png;
@@ -618,11 +593,6 @@ static lv_obj_t* ui_get_skin_image(uint16_t index)
         case AMP_SKIN_EVH5150:
         {
             result = (lv_obj_t*)&ui_img_skin_evh5150_png;
-        } break;
-
-        case AMP_SKIN_TINY_TERROR:
-        {
-            result = (lv_obj_t*)&ui_img_skin_tinyterror_png;
         } break;
 
         case AMP_SKIN_2020:

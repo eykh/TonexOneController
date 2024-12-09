@@ -61,6 +61,7 @@ limitations under the License.
 #include "midi_control.h"
 #include "CH422G.h"
 #include "midi_serial.h"
+#include "wifi_config.h"
 
 #define I2C_MASTER_SCL_IO               9       /*!< GPIO number used for I2C master clock */
 #define I2C_MASTER_SDA_IO               8       /*!< GPIO number used for I2C master data  */
@@ -342,6 +343,9 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "ToneX One Controller App start");
 
+    // load the config first
+    control_load_config();
+
 #if CONFIG_TONEX_CONTROLLER_DISPLAY_WAVESHARE_800_480
     // create mutex for shared I2C bus
     I2CMutex = xSemaphoreCreateMutex();
@@ -382,31 +386,32 @@ void app_main(void)
     ESP_LOGI(TAG, "Init footswitches");
     footswitches_init();
 
-#if CONFIG_TONEX_CONTROLLER_BLUETOOTH_CLIENT
-    // init Midi Bluetooth
-    ESP_LOGI(TAG, "Init MIDI BT Client");
-    midi_init();
-#else    
-    ESP_LOGI(TAG, "MIDI BT client disabled");
-#endif 
+    if (control_get_config_bt_mode() != BT_MODE_DISABLED)
+    {
+        // init Midi Bluetooth
+        ESP_LOGI(TAG, "Init MIDI BT");
+        midi_init();
+    }
+    else
+    {
+        ESP_LOGI(TAG, "MIDI BT disabled");
+    }
 
-#if CONFIG_TONEX_CONTROLLER_BLUETOOTH_SERVER
-    // init Midi Bluetooth
-    ESP_LOGI(TAG, "Init MIDI BT Server");
-    midi_init();
-#else    
-    ESP_LOGI(TAG, "MIDI BT server disabled");
-#endif 
-
-#if CONFIG_TONEX_CONTROLLER_USE_SERIAL_MIDI_ON
-    // init Midi serial
-    ESP_LOGI(TAG, "Init MIDI Serial");
-    midi_serial_init();
-#else    
-    ESP_LOGI(TAG, "Serial MIDI disabled");
-#endif
+    if (control_get_config_midi_serial_enable())
+    {
+        // init Midi serial
+        ESP_LOGI(TAG, "Init MIDI Serial");
+        midi_serial_init();
+    }
+    else
+    {    
+        ESP_LOGI(TAG, "Serial MIDI disabled");
+    }
 
     // init USB
     ESP_LOGI(TAG, "Init USB");
     init_usb_comms();
+
+    // init WiFi config
+    wifi_config_init();
 }

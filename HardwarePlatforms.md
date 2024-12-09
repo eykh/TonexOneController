@@ -1,5 +1,5 @@
 # Tonex One Controller: An open-source controller and display interface for the IK Multimedia Tonex One guitar pedal
-# Hardware Platforms
+# Hardware Platforms and Wiring Details
 Two hardware platforms are recommended. 
 
 Other ESP32-S3 platforms could be supported but would require code changes. They would need to meet the minimum requirements:
@@ -59,6 +59,17 @@ The footswitch must be a "momentary" type that is only has its contacts closed w
 The common pin of the footswitch must connect to the Controller ground pin, and the other 2 wires connected as shown.
 ![footswitches_waveshare_display](https://github.com/user-attachments/assets/5548f907-d769-4c65-8694-9b3ac25e7a86)
 ![footswitches_waveshare_zero](https://github.com/user-attachments/assets/7eda9912-f905-4e34-b8fe-beb595e10608)
+
+### Wired Midi (firmware version V1.0.4.2 or above required)
+Wired Midi is supported. A extra PCB is required, an "Adafruit Midi FeatherWing kit", for US$7.<br> 
+https://www.adafruit.com/product/4740 <br>
+This Midi board supports both 5-pin DIN sockets (included in kit) and 3.5mm jacks (not included in kit.)<br>
+The Waveshare Zero can directly connect to this PCB. The Waveshare 4.3B requires another small interface. Details coming soon.
+![midi_featherwing](https://github.com/user-attachments/assets/532d7d81-ae7e-485b-8d59-77ff6056e331)
+
+Connect the Midi FeatherWing to the Controller as per the below diagrams (4.3B coming soon.)
+![midi_waveshare_zero](https://github.com/user-attachments/assets/f5e34873-5ccb-4041-aa00-5f0a18ad4609)
+
 
 ### Case
 With the Zero being a bare PCB, a case of some type is useful to protect it. User "xXGrimTagnBagXx" from Thingiverse has created a very compact case that can be 3D printed:

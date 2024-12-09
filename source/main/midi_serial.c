@@ -39,24 +39,25 @@ limitations under the License.
 
 #define MIDI_SERIAL_TASK_STACK_SIZE             (3 * 1024)
 #define MIDI_SERIAL_BUFFER_SIZE                 128
-#define MIDI_CHANNEL                            0       // is actually channel 1
 
 #if CONFIG_TONEX_CONTROLLER_DISPLAY_WAVESHARE_800_480
     #define UART_PORT_NUM                           UART_NUM_1
-    #define UART_RX_PIN                             GPIO_NUM_16
-    // Waveshare 7" using ADC port
-    //#define UART_RX_PIN                           GPIO_NUM_6 
+    // to do here: finalise this
+    //#define UART_RX_PIN                             GPIO_NUM_43
+
+    // Waveshare 7" using ADC port - development use
+    #define UART_RX_PIN                           GPIO_NUM_6 
 #else
     #define UART_PORT_NUM                           UART_NUM_1
     #define UART_RX_PIN                             GPIO_NUM_5
 #endif
 
-#if CONFIG_TONEX_CONTROLLER_USE_SERIAL_MIDI_ON
 static const char *TAG = "app_midi_serial";
 
 // Note: based on https://github.com/vit3k/tonex_controller/blob/main/main/midi.cpp
 
 static uint8_t midi_serial_buffer[MIDI_SERIAL_BUFFER_SIZE];
+static uint8_t midi_serial_channel = 0;
 
 /****************************************************************************
 * NAME:        
@@ -115,7 +116,7 @@ static void midi_serial_task(void *arg)
                     {
                         uint8_t programNumber = midi_serial_buffer[i + 1];
 
-                        if (channel == MIDI_CHANNEL)
+                        if (channel == midi_serial_channel)
                         {
                             ESP_LOGI(TAG, "Change to preset %d", programNumber);
 
@@ -146,7 +147,8 @@ static void midi_serial_task(void *arg)
                 // The loop will automatically move to the next byte
             }
 
-            vTaskDelay(pdMS_TO_TICKS(10));
+            // don't hog the CPU
+            vTaskDelay(pdMS_TO_TICKS(2));
         }
     }
 }
@@ -162,7 +164,14 @@ void midi_serial_init(void)
 {	
     memset((void*)midi_serial_buffer, 0, sizeof(midi_serial_buffer));
 
+    // get the channel to use
+    midi_serial_channel = control_get_config_midi_channel();
+
+    // adjust to zero based indexing
+    if (midi_serial_channel > 0)
+    {
+        midi_serial_channel--;
+    }
+
     xTaskCreatePinnedToCore(midi_serial_task, "MIDIS", MIDI_SERIAL_TASK_STACK_SIZE, NULL, MIDI_SERIAL_TASK_PRIORITY, NULL, 1);
 }
-
-#endif // TONEX_CONTROLLER_USE_SERIAL_MIDI_ON

@@ -70,7 +70,6 @@ LV_IMG_DECLARE(ui_img_skin_jcm800_png);    // assets/skin_jcm800.png
 LV_IMG_DECLARE(ui_img_arrow_left_png);    // assets/arrow_left.png
 LV_IMG_DECLARE(ui_img_arrow_right_png);    // assets/arrow_right.png
 LV_IMG_DECLARE(ui_img_tick_png);    // assets/tick.png
-LV_IMG_DECLARE(ui_img_logo_png);    // assets/logo.png
 LV_IMG_DECLARE(ui_img_pskin_arion_png);    // assets/pskin_arion.png
 LV_IMG_DECLARE(ui_img_pskin_bigmuff_png);    // assets/pskin_bigmuff.png
 LV_IMG_DECLARE(ui_img_pskin_darkglass_png);    // assets/pskin_darkglass.png
@@ -97,11 +96,8 @@ LV_IMG_DECLARE(ui_img_skin_2001rb_png);    // assets/skin_2001rb.png
 LV_IMG_DECLARE(ui_img_skin_2020_png);    // assets/skin_2020.png
 LV_IMG_DECLARE(ui_img_skin_5150_png);    // assets/skin_5150.png
 LV_IMG_DECLARE(ui_img_skin_ac30_png);    // assets/skin_ac30.png
-LV_IMG_DECLARE(ui_img_skin_acoustic360_png);    // assets/skin_acoustic360.png
 LV_IMG_DECLARE(ui_img_skin_b18n_png);    // assets/skin_b18n.png
-LV_IMG_DECLARE(ui_img_skin_b51n_png);    // assets/skin_b51n.png
 LV_IMG_DECLARE(ui_img_skin_bluesdeluxe_png);    // assets/skin_bluesdeluxe.png
-LV_IMG_DECLARE(ui_img_skin_customdeluxe_png);    // assets/skin_customdeluxe.png
 LV_IMG_DECLARE(ui_img_skin_deville_png);    // assets/skin_deville.png
 LV_IMG_DECLARE(ui_img_skin_diezel_png);    // assets/skin_diezel.png
 LV_IMG_DECLARE(ui_img_skin_dualrectifier_png);    // assets/skin_dualrectifier.png
@@ -117,12 +113,9 @@ LV_IMG_DECLARE(ui_img_skin_or50_png);    // assets/skin_or50.png
 LV_IMG_DECLARE(ui_img_skin_pinktaco_png);    // assets/skin_pinktaco.png
 LV_IMG_DECLARE(ui_img_skin_powerball_png);    // assets/skin_powerball.png
 LV_IMG_DECLARE(ui_img_skin_princeton_png);    // assets/skin_princeton.png
-LV_IMG_DECLARE(ui_img_skin_rockerverb_png);    // assets/skin_rockerverb.png
 LV_IMG_DECLARE(ui_img_skin_superbass_png);    // assets/skin_superbass.png
 LV_IMG_DECLARE(ui_img_skin_supro50_png);    // assets/skin_supro50.png
 LV_IMG_DECLARE(ui_img_skin_svtcl_png);    // assets/skin_svtcl.png
-LV_IMG_DECLARE(ui_img_skin_tinyterror_png);    // assets/skin_tinyterror.png
-LV_IMG_DECLARE(ui_img_skin_trinity_png);    // assets/skin_trinity.png
 LV_IMG_DECLARE(ui_img_skin_twinreverb_png);    // assets/skin_twinreverb.png
 
 

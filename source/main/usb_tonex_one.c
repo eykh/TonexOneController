@@ -166,6 +166,7 @@ static esp_err_t usb_tonex_one_transmit(uint8_t* tx_data, uint16_t tx_len);
 static Status usb_tonex_one_parse(uint8_t* message, uint16_t inlength);
 static esp_err_t usb_tonex_one_set_active_slot(Slot newSlot);
 static esp_err_t usb_tonex_one_set_preset_in_slot(uint16_t preset, Slot newSlot, uint8_t selectSlot);
+static uint16_t usb_tonex_one_get_current_active_preset(void);
 
 /****************************************************************************
 * NAME:        
@@ -424,6 +425,11 @@ static esp_err_t __attribute__((unused)) usb_tonex_one_set_active_slot(Slot newS
 static esp_err_t usb_tonex_one_set_preset_in_slot(uint16_t preset, Slot newSlot, uint8_t selectSlot)
 {
     uint16_t framed_length;
+    
+    // firmware v1.1.4: offset needed is 12
+    // firmware v1.2.6: offset needed is 18
+    //todo could do version check and support multiple versions
+    uint8_t offset_from_end = 18;
 
     ESP_LOGI(TAG, "Setting preset %d in slot %d", (int)preset, (int)newSlot);
 
@@ -434,13 +440,40 @@ static esp_err_t usb_tonex_one_set_preset_in_slot(uint16_t preset, Slot newSlot,
     message[6] = TonexData.Message.PedalData.Length & 0xFF;
     message[7] = (TonexData.Message.PedalData.Length >> 8) & 0xFF;
 
+    // force pedal to Stomp mode. 0 here = A/B mode, 1 = stomp mode
+    TonexData.Message.PedalData.RawData[14] = 1;
+    
+    // check if setting same preset twice will set bypass
+    if (control_get_config_double_toggle())
+    {
+        if (selectSlot && (TonexData.Message.CurrentSlot == newSlot) && (preset == usb_tonex_one_get_current_active_preset()))
+        {
+            // are we in bypass mode?
+            if (TonexData.Message.PedalData.RawData[TonexData.Message.PedalData.Length - offset_from_end + 6] == 1)
+            {
+                ESP_LOGI(TAG, "Disabling bypass mode");
+
+                // disable bypass mode
+                TonexData.Message.PedalData.RawData[TonexData.Message.PedalData.Length - offset_from_end + 6] = 0;
+            }
+            else
+            {
+                ESP_LOGI(TAG, "Enabling bypass mode");
+
+                // enable bypass mode
+                TonexData.Message.PedalData.RawData[TonexData.Message.PedalData.Length - offset_from_end + 6] = 1;
+            }
+        }
+        else
+        {
+            // new preset, disable bypass mode to be sure
+            TonexData.Message.PedalData.RawData[TonexData.Message.PedalData.Length - offset_from_end + 6] = 0;
+        }
+    }
+
     TonexData.Message.CurrentSlot = newSlot;
 
-    // firmware v1.1.4: offset needed is 12
-    // firmware v1.2.6: offset needed is 18
-    //todo could do version check and support multiple versions
-    uint8_t offset_from_end = 18;
-
+  
     // set the preset index into the slot position
     switch (newSlot)
     {

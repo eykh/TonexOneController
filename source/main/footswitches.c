@@ -190,7 +190,7 @@ void footswitch_task(void *arg)
             } break;
         }
 
-        vTaskDelay(20);
+        vTaskDelay(pdMS_TO_TICKS(20));
     }
 }
 

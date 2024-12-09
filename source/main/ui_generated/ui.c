@@ -52,7 +52,6 @@ const lv_img_dsc_t * ui_imgset_pskin_mxr[1] = {&ui_img_pskin_mxr2_png};
 const lv_img_dsc_t * ui_imgset_pskin_od[1] = {&ui_img_pskin_od1_png};
 const lv_img_dsc_t * ui_imgset_skin_[2] = {&ui_img_skin_2020_png, &ui_img_skin_5150_png};
 const lv_img_dsc_t * ui_imgset_skin_ac[1] = {&ui_img_skin_ac30_png};
-const lv_img_dsc_t * ui_imgset_skin_acoustic[1] = {&ui_img_skin_acoustic360_png};
 const lv_img_dsc_t * ui_imgset_skin_evh[1] = {&ui_img_skin_evh5150_png};
 const lv_img_dsc_t * ui_imgset_skin_jcm[1] = {&ui_img_skin_jcm800_png};
 const lv_img_dsc_t * ui_imgset_skin_mk[1] = {&ui_img_skin_mk3_png};

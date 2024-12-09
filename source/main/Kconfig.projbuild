@@ -20,48 +20,7 @@ menu "Tonex Controller Configuration"
 
         config TONEX_CONTROLLER_SKINS_PEDAL
             bool "Pedal Skins"
-    endchoice
-    
-    choice TONEX_CONTROLLER_USE_BLUETOOTH
-        prompt "Tonex Controller Bluetooth Support"
-        default TONEX_CONTROLLER_BLUETOOTH_OFF  
-        help
-            Client for having the Tonex Controller connect to devices like M-Vave Chocolate foot switch. Server for pairing the Tonex Controller with a Bluetooth Midi controller device (like a Phone.)
-                
-        config TONEX_CONTROLLER_BLUETOOTH_CLIENT
-            bool "Bluetooth Client"
-
-        config TONEX_CONTROLLER_BLUETOOTH_SERVER
-            bool "Bluetooth Server"
-
-        config TONEX_CONTROLLER_BLUETOOTH_OFF
-            bool "Disabled"
-    endchoice
-
-    if TONEX_CONTROLLER_BLUETOOTH_CLIENT
-        config TONEX_CONTROLLER_DEVICE_SUPPORT_MVAVE_CHOCOLATE
-            bool "Enable M-Vave Chocolate series footswitches"
-            default n
-            help
-            Enable/Disable support for the M-Vave Chocolate/Chocolate Plus Midi Bluetooth foot switches
-            
-        config TONEX_CONTROLLER_DEVICE_SUPPORT_XVIVE_MD1
-            bool "Enable Xvive MD1"
-            default n
-            help
-            Enable/Disable support for the Xvive Bluetooth Midi adaptor
-    endif # TONEX_CONTROLLER_BLUETOOTH_CLIENT
-    
-    choice TONEX_CONTROLLER_USE_SERIAL_MIDI
-        prompt "Tonex Controller Serial Midi Support"
-        default TONEX_CONTROLLER_USE_SERIAL_MIDI_ON  
-        
-        config TONEX_CONTROLLER_USE_SERIAL_MIDI_ON
-            bool "Enabled"
-
-        config TONEX_CONTROLLER_USE_SERIAL_MIDI_OFF
-            bool "Disabled"
-    endchoice
+    endchoice    
 
     config EXAMPLE_DOUBLE_FB
         bool "Use double Frame Buffer"
